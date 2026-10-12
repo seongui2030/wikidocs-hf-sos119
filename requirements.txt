@@ -1,0 +1,5 @@
+gradio>=4.35.0
+groq>=0.9.0
+supabase>=2.4.0
+python-dotenv>=1.0.0
+gtts
