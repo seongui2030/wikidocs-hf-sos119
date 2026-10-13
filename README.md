@@ -7,52 +7,6 @@
 
 ![스마트119 시스템 동작 흐름도](https://raw.githubusercontent.com/seongui2030/wikidocs-hf-sos119/main/assets/wikidocs-hf-sos119-mermaid.svg)
 
-
-``` mermaid
-flowchart TD
-    Start(["사용자 앱 접속"]) --> CheckAuth{"로그인 여부 확인"}
-
-    CheckAuth -->|Google 계정 로그인| OAuth["Google OAuth 2.0 인증"]
-    OAuth --> SyncUser["auth_manager.py: app_users 테이블 동기화"]
-    CheckAuth -->|체험용 게스트| Guest["guest@smart119.local 임시 세션"]
-
-    SyncUser --> MainUI["스마트119 메인 대시보드"]
-    Guest --> MainUI
-
-    MainUI --> InputVoice["플로팅 마이크: 원터치 음성 입력"]
-    MainUI --> InputText["텍스트 입력창: 글로 질문하기"]
-    MainUI --> ClickBMI["신체 건강 입력"]
-    MainUI --> ClickSOS["사이렌 버튼: 긴급 구조 요청"]
-    MainUI --> ClickHistory["대화 기록 관리"]
-
-    InputVoice --> STT["Groq Whisper-large-v3: 음성을 한글 텍스트로 변환"]
-    STT --> CheckEmerg{"응급 키워드 판별<br/>check_emergency"}
-    InputText --> CheckEmerg
-
-    CheckEmerg -->|위급 상황: 흉통·호흡곤란 등| EmerDetect["응급 대처 프로토콜 발동"]
-    EmerDetect --> SaveEmerLog1["emergency_logs 테이블에 즉시 기록"]
-    EmerDetect --> ShowAlertBtn["대화창에 SOS 전송 버튼 표시"]
-
-    CheckEmerg -->|일반 건강 상담| RAG["의학 가이드라인 RAG 지식 검색"]
-    RAG --> LLM["Groq Qwen-2.5-72B: 맞춤 상담 생성"]
-    LLM --> TTS["gTTS: 음성 답변 MP3 합성"]
-
-    ShowAlertBtn --> SaveChat["chat_manager.py: chat_logs 테이블 저장"]
-    TTS --> SaveChat
-    SaveChat --> PlayAudio["화면 말풍선 출력 및 음성 재생"]
-
-    ClickBMI --> CalcBMI["BMI 및 BMR 자동 계산"]
-    CalcBMI --> SaveBMI["bmi 테이블에 사용자 정보 연동 저장"]
-
-    ClickSOS --> GetGPS["브라우저 Geolocation: 위도·경도 측정"]
-    GetGPS --> MakeMap["Google Maps / KakaoMap 좌표 링크 생성"]
-    MakeMap --> SendSMS["보호자에게 보낼 긴급 알림 SMS 링크"]
-    MakeMap --> SaveEmerLog2["emergency_logs 테이블에 위치·수신자 기록"]
-
-    ClickHistory --> SearchLogs["대화 검색 및 개별 삭제"]
-    ClickHistory --> ExportFiles["CSV 다운로드 / PDF 인쇄"]
-```
-
 ## 2. 단계별 한 줄 설명
 
 1.  **사용자 접속 및 인증**: Google 계정으로 로그인하거나 게스트로
