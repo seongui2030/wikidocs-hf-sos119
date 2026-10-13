@@ -6,6 +6,7 @@
 ## 1. 시스템 동작 흐름도
 
 ![Flow-chart](assets\wikidocs-hf-sos119-mermaid.svg)
+<img alt="시스템 동작 흐름도" decoding="async" loading="lazy" src="https://raw.githubusercontent.com/seongui2030/wikidocs_hf_sos119/main/assets/wikidocs-hf-sos119-mermaid.svg">
 
 ``` mermaid
 flowchart TD
