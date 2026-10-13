@@ -5,7 +5,7 @@
 
 ## 1. 시스템 동작 흐름도
 
-![Flow-chart](assets\wikidocs-hf-sos119-mermaid.png)
+![Flow-chart](assets\wikidocs-hf-sos119-mermaid.svg)
 
 ``` mermaid
 flowchart TD
