@@ -1,5 +1,5 @@
 """
-스마트119 (말벗케어) - AI 건강 상담 & 신체측정(BMI/BMR) & 긴급 SOS & 대화기록 관리 (app.py)
+SOS인공지능 - AI 건강 상담 & 신체측정(BMI/BMR) & 긴급 SOS & 대화기록 관리 (app.py)
 - 주요 기능:
   1) 💪 팔뚝 아이콘: 키/몸무게/나이/성별/메모 입력 ➔ BMI & BMR 자동 계산 ➔ app_users(id) FK 연동 저장
   2) 🎙️ 플로팅 마이크 (image-6.png): 화면 상시 고정 + 원터치 즉시 음성 녹음
@@ -21,6 +21,11 @@ import gradio as gr
 from groq import Groq
 from gtts import gTTS
 from supabase import create_client, Client
+
+from admin import (
+    is_admin_user, make_admin_modal_html, 
+    admin_delete_user, admin_toggle_ban_user, admin_export_table_csv
+)
 
 # ============================================================
 # 1. 환경 설정 및 한국 표준시(KST) 정의
@@ -345,7 +350,7 @@ def call_groq_llm(user_message: str, history: list, user_name: str = "") -> str:
 
     # [수정] '어르신' 호칭을 쓰지 않도록 시스템 프롬프트 규칙 명시
     system_prompt = (
-        "당신은 사용자의 건강을 따뜻하게 돌보는 119 건강 비서 '스마트119(말벗케어)'입니다.\n"
+        "당신은 사용자의 건강을 따뜻하게 돌보는 119 건강 비서 'SOS인공지능'입니다.\n"
         f"{date_info}\n"
         f"{med_ctx}\n"
         "지침:\n"
@@ -1054,23 +1059,33 @@ def get_google_oauth_url() -> str:
         return "#"
     return f"{SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to={PUBLIC_APP_URL}"
 
-def make_header_html(user_name="게스트", avatar_url="") -> str:
-    """헤더 HTML: 사람2아이콘(👥) ➔ 알통 팔뚝(💪)으로 변경"""
+def make_header_html(user_name="게스트", avatar_url="", user_email="") -> str:
+    """헤더 HTML: 관리자 계정일 때 SOS인공지능 텍스트 클릭 시 관리자 대시보드 팝업"""
     if avatar_url:
         avatar_markup = f'<img src="{avatar_url}" alt="프로필" class="profile-avatar-img" />'
     else:
         initial = (user_name[0] if user_name else "G").upper()
         avatar_markup = f'<span class="profile-avatar-fallback">{initial}</span>'
 
+    # 관리자 여부에 따라 SOS인공지능 텍스트 스타일 및 클릭 이벤트 부여
+    if is_admin_user(user_email):
+        app_title_html = """
+        <span class="header-app-name" style="cursor:pointer;" onclick="window.openAdminModal()" title="관리자 대시보드 열기">
+            SOS인공지능 <span style="font-size:11px; background:#047857; color:white; padding:2px 6px; border-radius:10px; vertical-align:middle;">ADMIN</span>
+        </span>
+        """
+    else:
+        app_title_html = '<span class="header-app-name">SOS인공지능</span>'
+
     return f"""
     <div class="app-header">
       <div class="header-left">
-        <span class="header-app-name">말벗케어</span>
+        {app_title_html}
       </div>
       <div class="header-right">
         <!-- 🚨 응급 사이렌 -->
         <button class="header-icon-btn sos-btn" title="응급 호출" onclick="window.openEmergencyModal('{user_name}')">🚨</button>
-        <!-- 💪 [신규] 신체 건강 / BMI·BMR 측정 아이콘 -->
+        <!-- 💪 신체 건강 (BMI/BMR) -->
         <button class="header-icon-btn" title="신체 건강 (BMI/BMR)" onclick="window.openBmiModal()">💪</button>
         <!-- 🕒 상담 기록 -->
         <button class="header-icon-btn" title="상담 기록" onclick="window.openHistoryModal()">🕒</button>
@@ -1230,7 +1245,11 @@ def make_history_modal_html(logs: list, user_email: str) -> str:
 # ============================================================
 # 8. Gradio UI 레이아웃 및 이벤트 바인딩
 # ============================================================
-with gr.Blocks(title="스마트119 - 말벗케어", css=CUSTOM_CSS, js=APP_CLIENT_JS) as demo:
+# CSS 및 JS 병합
+FULL_CSS = CUSTOM_CSS + "\n" + ADMIN_CSS
+FULL_JS = APP_CLIENT_JS + "\n" + ADMIN_CLIENT_JS
+
+with gr.Blocks(title="SOS인공지능", css=CUSTOM_CSS, js=APP_CLIENT_JS) as demo:
     
     # user_state: id, email, name, avatar_url, contacts
     user_state = gr.State(value={"id": "", "email": "", "name": "게스트", "avatar_url": "", "contacts": []})
@@ -1242,13 +1261,20 @@ with gr.Blocks(title="스마트119 - 말벗케어", css=CUSTOM_CSS, js=APP_CLIEN
     bmi_modal_view = gr.HTML(value=make_bmi_modal_html(None))
     sos_modal_view = gr.HTML(value=make_sos_modal_html("게스트", []))
     history_modal_view = gr.HTML(value=make_history_modal_html([], ""))
+    
+    # 🛡️ 관리자 대시보드 모달 컴포넌트 추가
+    admin_modal_view = gr.HTML(value="", elem_id="admin-modal-container")
+    
+    # 관리자 명령 통신용 숨김 브릿지
+    admin_action_bridge = gr.Textbox(visible=False, elem_id="admin-action-bridge")
+    admin_csv_download = gr.File(label="CSV 다운로드", visible=False)
 
     # --- [A] 로그인 화면 ---
     with gr.Column(visible=True) as intro_view:
         gr.HTML(f"""
         <div class="intro-card">
           <div style="font-size: 52px; margin-bottom: 12px;">👵💚🤖</div>
-          <h2 style="font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 6px;">스마트119 말벗케어</h2>
+          <h2 style="font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 6px;">SOS인공지능</h2>
           <p style="font-size: 13px; color: #64748b; line-height: 1.5; margin-bottom: 24px;">
             어르신의 건강 상태를 따뜻하게 챙겨드리고<br/>
             신체 측정 및 응급 증상 대처를 도와드립니다.
@@ -1305,6 +1331,11 @@ with gr.Blocks(title="스마트119 - 말벗케어", css=CUSTOM_CSS, js=APP_CLIEN
     delete_log_bridge = gr.Textbox(elem_id="delete-log-bridge", elem_classes=["hidden-box"])
     voice_base64_bridge = gr.Textbox(elem_id="voice-base64-bridge", elem_classes=["hidden-box"])
     bmi_data_bridge = gr.Textbox(elem_id="bmi-data-bridge", elem_classes=["hidden-box"])
+
+    # amdin:
+    admin_action_bridge = gr.Textbox(elem_id="admin-action-bridge", elem_classes=["hidden-box"])
+    admin_csv_download = gr.File(visible=False, label="관리자 CSV 다운로드")
+
 
     # ============================================================
     # 9. 이벤트 핸들러 로직
@@ -1527,6 +1558,37 @@ with gr.Blocks(title="스마트119 - 말벗케어", css=CUSTOM_CSS, js=APP_CLIEN
         api_name=False
     )
 
+    # ============================================================
+    # 👇 관리자 액션 핸들러 및 브릿지
+    # ============================================================
+    def handle_admin_action(action_json: str, u_state: dict):
+        if not is_admin_user(u_state.get("email")):
+            return gr.update(), None
+        try:
+            req = json.loads(action_json)
+            act = req.get("action")
+            
+            if act == "delete_user":
+                admin_delete_user(supabase_client, req.get("user_id"))
+            elif act == "toggle_ban":
+                admin_toggle_ban_user(supabase_client, req.get("user_id"), req.get("status"))
+            elif act == "export_csv":
+                csv_path = admin_export_table_csv(supabase_client, req.get("table"))
+                return make_admin_modal_html(supabase_client, u_state.get("email")), gr.update(value=csv_path, visible=True)
+            
+            # 변경 후 모달 뷰 최신 상태로 갱신
+            updated_html = make_admin_modal_html(supabase_client, u_state.get("email"))
+            return updated_html, gr.update()
+        except Exception as e:
+            print(f"[관리자 처리 에러]: {e}")
+            return gr.update(), gr.update()
+
+    admin_action_bridge.change(
+        handle_admin_action,
+        inputs=[admin_action_bridge, user_state],
+        outputs=[admin_modal_view, admin_csv_download],
+        api_name=False
+    )
     # 대화 삭제
     def handle_delete_chat_log(log_id_str: str, u_state: dict):
         if not log_id_str:
