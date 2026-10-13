@@ -1261,7 +1261,7 @@ with gr.Blocks(title="SOS인공지능", css=CUSTOM_CSS, js=APP_CLIENT_JS) as dem
     bmi_modal_view = gr.HTML(value=make_bmi_modal_html(None))
     sos_modal_view = gr.HTML(value=make_sos_modal_html("게스트", []))
     history_modal_view = gr.HTML(value=make_history_modal_html([], ""))
-    
+
     # 🛡️ 관리자 대시보드 모달 컴포넌트 추가
     admin_modal_view = gr.HTML(value="", elem_id="admin-modal-container")
     
@@ -1616,5 +1616,6 @@ if __name__ == "__main__":
     demo.launch(
         server_name="0.0.0.0",
         server_port=7860,
+        ssr=False,
         show_error=True
     )
