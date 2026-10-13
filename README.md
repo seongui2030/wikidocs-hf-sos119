@@ -1,11 +1,11 @@
-# [스마트 119]
-> **"스마트 119"**는 Qwen과 Whisper를 활용해 음성·텍스트 기반 건강
+# {SOS 인공지능 비서}
+> **"SOS 인공지능 비서"**는 Qwen과 Whisper를 활용해 음성·텍스트 기반 건강
 > 상담을 제공하고, 응급 상황에서는 GPS 위치 확인 및 보호자 SMS 발송
-> 링크를 준비하는 스마트119 웹앱입니다.
+> 링크를 준비하는 SOS 인공지능 비서 웹앱입니다.
 
 ## 1. 시스템 동작 흐름도
 
-![스마트119 시스템 동작 흐름도](https://raw.githubusercontent.com/seongui2030/wikidocs-hf-sos119/main/assets/wikidocs-hf-sos119-mermaid.svg)
+![SOS 인공지능 비서 시스템 동작 흐름도](https://raw.githubusercontent.com/seongui2030/wikidocs-hf-sos119/main/assets/wikidocs-hf-sos119-mermaid.svg)
 
 ## 2. 단계별 한 줄 설명
 
@@ -66,7 +66,20 @@
     localhost)가 필요할 수 있습니다.
 -   SMS 링크는 사용자의 문자 앱을 열어 메시지 작성을 돕는 방식일 수
     있으며, 환경에 따라 자동 발송되지 않습니다.
--   이 앱의 AI 상담은 의료진의 진단이나 응급 서비스 이용을 대체하지
-    않습니다. 실제 응급 상황에서는 즉시 119에 연락하세요.
+-   **이 앱의 AI 상담은 의료진의 진단이나 응급 서비스 이용을 대체하지
+    않습니다. 실제 응급 상황에서는 즉시 119에 연락하세요.**
 -   실제 서비스에 배포하기 전에는 응급 키워드 감지, 개인정보 처리,
     인증·권한, 로그 보관, API 키 보안을 충분히 테스트하세요.
+---
+title: SOS 119
+emoji: 🚑
+colorFrom: green
+colorTo: blue
+sdk: gradio
+sdk_version: 5.12.0
+app_file: app.py
+pinned: false
+short_description: "인공지능의 사회적 가치를 실현하는 응급 건강 케어 챗봇"
+---
+[DEPLOY](https://lilyjeongwon-sos119.hf.space/)
+![SOS 인공지능 비서 QR](https://raw.githubusercontent.com/seongui2030/wikidocs-hf-sos119/main/assets/QR-sos.png)
