@@ -5,8 +5,7 @@
 
 ## 1. 시스템 동작 흐름도
 
-아래 Mermaid 코드는 VS Code의 Markdown 미리보기 등 Mermaid를 지원하는
-환경에서 렌더링할 수 있습니다.
+![Flow-chart](assets\wikidocs-hf-sos119-mermaid.png)
 
 ``` mermaid
 flowchart TD
