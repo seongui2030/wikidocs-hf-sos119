@@ -37,3 +37,8 @@
   - [09-1. Hugging Face Spaces 생성과 환경변수(Secrets) 등록](pages/09-1-hf-setup.md)
   - [09-2. Git을 이용한 소스코드 배포와 실시간 런타임 로그 확인](pages/09-2-git-deploy-logs.md)
   - [09-3. 9단원 실습 과제: 전 세계 누구나 접속하는 라이브 서비스 완성](pages/09-3-lab.md)
+- [10. 백엔드 분산 데이터 전처리 및 머신러닝 기반 분석](pages/10-ml-data-pipeline.md)
+  - [10-1. [과제 1] 백엔드 분산 데이터 전처리 및 SQL 통합 뷰 구축](pages/10-1-sql-preprocessing.md)
+  - [10-2. [과제 2] 머신러닝 지도학습(Decision Tree) 분류 모델링과 중요도 시각화](pages/10-2-decision-tree.md)
+  - [10-3. [과제 3] 머신러닝 비지도학습(K-Means & PCA) 5단계 파이프라인과 군집 해석](pages/10-3-kmeans-pca.md)
+  - [10-4. 10단원 종합 실습: 백엔드 SQL 및 머신러닝 파이프라인 실기 수행평가](pages/10-4-lab.md)
