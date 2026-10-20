@@ -27,6 +27,7 @@
     만들고 보호자에게 보낼 SMS 링크를 준비합니다.
 9.  **상담 기록 관리**: 대화 기록을 검색·삭제하고 CSV 또는 PDF로
     내보냅니다.
+10. **분산 데이터 및 머신러닝 분석**: 대용량 데이터 전처리와 ML 예측 모델링을 수행합니다.
 
 ## 3. 주요 기능별 기술 구성
 
@@ -42,6 +43,7 @@
 | **상담 기록** | Supabase CRUD, CSV, PDF, `chat_manager.py` | 상담 기록 검색·삭제·내보내기 |
 | **GPS 및 SOS** | HTML5 Geolocation, 지도 URL, SMS URI | 위치 링크 생성 및 보호자 문자 작성 지원 |
 | **배포** | Hugging Face Spaces, Git, Space Secrets | 웹앱 배포 및 운영 |
+| **머신러닝 분석** |Supabase, Decision tree, K-means, PCA | 대용량 데이터 전처리 및 ML 모델링 파이프라인 |
 
 ---
 
@@ -58,6 +60,7 @@
 | **07. 상담 기록 관리** | 기록 검색·삭제 및 보고서 내보내기 | `chat_manager.py` | Supabase CRUD, CSV, PDF |
 | **08. GPS 및 긴급 알림** | 위치 좌표, 지도 링크, SMS 연동 | `app.py`, `sql.sql` | Geolocation API, SMS URI, 응급 로그 |
 | **09. 배포 및 운영** | 웹앱 배포 및 로그 모니터링 | `app.py`, `README.md` | Hugging Face Spaces, Git Push, Secrets |
+| **10. 백엔드 분산 데이터 및 ML** | 데이터 전처리, SQL 뷰, 머신러닝 모델링 |  `10-1-sql-preprocessing.py`, `R10-2-decision-tree.py.md`, `10-3-kmeans-pca.py`, `10-4-lab-full-pipeline.py`  | Pandas, Scikit-Learn, Decision Tree, K-Means, PCA |
 
 
 ## 5. 실행 및 안전 관련 참고
@@ -83,3 +86,4 @@ short_description: "인공지능의 사회적 가치를 실현하는 응급 건�
 ---
 [DEPLOY](https://lilyjeongwon-sos119.hf.space/)
 ![SOS 인공지능 비서 QR](https://raw.githubusercontent.com/seongui2030/wikidocs-hf-sos119/main/assets/QR-sos.png)
+```[cite: 1]
